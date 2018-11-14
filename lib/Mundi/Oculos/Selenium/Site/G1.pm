@@ -1,17 +1,15 @@
 package Mundi::Oculos::Selenium::Site::G1;
 
-use base 'Mundi::Oculos::Selenium::Site';
+use base 'Mundi::Oculos::Selenium';
 
-use Mundi::Oculos::Selenium::Noticia::G1;
+use Mundi::Oculos::Selenium::News::G1;
 
-our @NOTICIAS_GAMBIARRA;
-
-my $CSS_NOTICIAS = "
-  div.bastian-feed-item[data-type='basico'] .feed-post-link,
-  .bstn-hl-link
+my $NEWS_CSS = "
+    div.bastian-feed-item[data-type='basico'] .feed-post-link,
+    .bstn-hl-link:not(.bstn-related)
 ";
 
-my $CSS_BARRA_VER_MAIS = '.load-more';
+my $LOAD_MORE_BUTTON_CSS = '.load-more';
 
 sub new {
 
@@ -23,33 +21,30 @@ sub new {
     bless $self, $class;
 }
 
-sub carregar_noticias {
+sub load_news {
 
   my $self = shift;
+  my @news_html;
 
-  my @noticias;
+  while (scalar @news_html <= 3) {
 
-  while (scalar @noticias <= 3) {
+    @news_html = map { $_->get_attribute('href') } $self->find_elements($NEWS_CSS, 'css');
 
-    $self->find_element_by_css($CSS_BARRA_VER_MAIS)->click;
+    $self->find_element_by_css($LOAD_MORE_BUTTON_CSS)->click;
     sleep 3;
-
-    @noticias = $self->find_elements($CSS_NOTICIAS, 'css');
   }
 
-  foreach my $html_noticia (splice @noticias, 0, 3) {
+  my @news;
 
-    my $link_noticia = $html_noticia->get_attribute('href');
-    my $pag_noticia = Mundi::Oculos::Selenium::Noticia::G1->new($link_noticia);
+  foreach my $news_link (splice @news_html, 0, 3) {
 
-    my $res = $pag_noticia->get;
+    my $news_pag = Mundi::Oculos::Selenium::News::G1->new($news_link);
 
-    push @NOTICIAS_GAMBIARRA, $pag_noticia->serialize if $res;
-    # $self->add_noticia($pag_noticia->serialize) if $res;
-
-    $pag_noticia->close;
+    my $res = $news_pag->get;
+    push @news, $news_pag->serialize if $res;
+    $news_pag->close;
   }
 
-  return @NOTICIAS_GAMBIARRA;
+  @news
 }
 1;

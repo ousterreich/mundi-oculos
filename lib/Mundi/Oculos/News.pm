@@ -1,4 +1,4 @@
-package Mundi::Oculos::Noticia;
+package Mundi::Oculos::News;
 
 sub new {
 
@@ -16,43 +16,43 @@ sub link {
   return $self->{link};
 }
 
-sub titulo {
+sub title {
 
   my $self = shift;
 
-  $self->{titulo} = shift
+  $self->{title} = shift
   if scalar @_;
 
-  return $self->{titulo};
+  return $self->{title};
 }
 
-sub subtitulo {
+sub subtitle {
 
   my $self = shift;
 
-  $self->{subtitulo} = shift
+  $self->{subtitle} = shift
   if scalar @_;
 
-  return $self->{subtitulo};
+  return $self->{subtitle};
 }
 
-sub tempo {
+sub time {
 
   my $self = shift;
 
-  $self->{tempo} = shift
+  $self->{time} = shift
   if scalar @_;
 
-  return $self->{tempo};
+  return $self->{time};
 }
 
-sub texto {
+sub text {
 
   my $self = shift;
 
-  $self->{texto} = shift
+  $self->{text} = shift
   if scalar @_;
 
-  return $self->{texto};
+  return $self->{text};
 }
 1;

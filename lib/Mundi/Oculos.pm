@@ -1,69 +1,73 @@
 package Mundi::Oculos;
 
-our @regioes = qw/
-	BauruMarilia
-	Campinas
-	Itapetininga
-	MogiSuzano
-	Piracicaba
-	Prudente
-	RibeiraoFranca
-	RioPretoAracatuba
-	Santos
-	SaoCarlos
-	SaoPaulo
-	SorocabaJundiai
-	ValeParaiba
-/;
+use Module::Load;
+use aliased 'Mundi::Oculos::Query';
+use aliased 'Mundi::Oculos::Geography';
 
 sub new {
 
 	my $class = shift;
-	bless {noticias => []}, $class;
+	my $self = {
+		query => undef,
+		news => []
+	};
+
+	bless $self, $class
 }
 
-sub noticias {
+sub set_query {
 
 	my $self = shift;
+	my %args = @_;
 
-	if (@_) {
+	my $regions = $args{'-regions'};
 
-		$self->{noticias} = \@_;
-	}
+	$self->{query} = Query->new(
+		regions => $regions
+	);
 
-	@{$self->{noticias}};
+	$self
 }
 
-sub add_noticia {
-
-  my $self = shift;
-  my $noticia = shift;
-  my @noticias = $self->noticias;
-
-  use Data::Dumper;
-  die Dumper @noticias;
-
-  push @noticias, $noticia;
-  $self->noticias(@noticias);
-}
-
-sub scrapping_sites {
+sub get_news {
 
 	my $self = shift;
+	@{$self->{news}}
+}
 
-	use Mundi::Oculos::Selenium::Site::G1::SP::BauruMarilia;
-	my $site_g1 = Mundi::Oculos::Selenium::Site::G1::SP::BauruMarilia->new;
+sub run {
 
-	$site_g1->get;
-	my $res = $site_g1->carregar_noticias;
+	my $self = shift;
+	my @news_sites = Geography->get_news_sites($self->{query});
 
-	if ($res) {
+	my %modules;
 
-		$self->add_noticia($_)
-		foreach $site_g1->noticias;
+	foreach my $news_site (@news_sites) {
+
+		my $path = $news_site->{path};
+		my $news_module = $news_site->{news_module};
+
+		$modules{$news_module} = []
+		unless (defined $modules{$news_module});
+
+		push @{$modules{$news_module}}, $path
+		unless scalar grep { $_ eq $path } @{$modules{$news_module}};
 	}
 
-	return $self->noticias;
+	my @news;
+
+	foreach (keys %modules) {
+
+		my $module = "Mundi::Oculos::Selenium::Site::$_";
+		load $module;
+
+		my $module_instance = $module->new;
+		$module_instance->get;
+
+		push @news, $module_instance->load_news;
+	}
+
+	@news
 }
 
 1;

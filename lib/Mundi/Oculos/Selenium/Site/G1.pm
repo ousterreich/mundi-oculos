@@ -17,20 +17,31 @@ sub new {
     my $url = shift;
 
     my $self = $class->SUPER::new($url || 'https://g1.globo.com');
-
-    bless $self, $class;
+    bless $self, $class
 }
 
 sub load_news {
 
   my $self = shift;
+
   my @news_html;
+  my $old_size = 0;
 
-  while (scalar @news_html <= 3) {
+  while ($old_size < 3) {
 
-    @news_html = map { $_->get_attribute('href') } $self->find_elements($NEWS_CSS, 'css');
+    my @elements = $self->find_elements($NEWS_CSS, 'css');
+    my $new_size = scalar @elements;
 
-    $self->find_element_by_css($LOAD_MORE_BUTTON_CSS)->click;
+    push @news_html, map {
+      $_->get_attribute('href')
+    } splice @elements, $old_size, $new_size - $old_size;
+
+    $old_size = $new_size;
+
+    my $load_button = $self->find_element_by_css($LOAD_MORE_BUTTON_CSS);
+    last unless $old_size < 3 && defined $load_button;
+
+    $load_button->click;
     sleep 3;
   }
 

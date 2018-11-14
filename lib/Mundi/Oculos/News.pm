@@ -3,7 +3,15 @@ package Mundi::Oculos::News;
 sub new {
 
   my $class = shift;
-  bless {}, $class;
+  my %args = @_;
+
+  $self->{link} = $args{'-link'};
+  $self->{text} = $args{'-text'};
+  $self->{time} = $args{'-time'};
+  $self->{title} = $args{'-title'};
+  $self->{subtitle} = $args{'-subtitle'};
+
+  bless $self, $class
 }
 
 sub link {

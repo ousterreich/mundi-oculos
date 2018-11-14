@@ -5,10 +5,7 @@ sub new {
   my $class = shift;
   my $regions = shift || {'*' => '*'};
 
-  my $self = {
-    regions => $regions
-  };
-
+  my $self = {regions => $regions};
   bless $self, $class
 }
 

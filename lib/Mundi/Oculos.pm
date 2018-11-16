@@ -21,9 +21,11 @@ sub set_query {
 	my %args = @_;
 
 	my $regions = $args{'-regions'};
+	my $news = $args{'-news'};
 
 	$self->{query} = Query->new(
-		regions => $regions
+		regions => $regions,
+		news => $news
 	);
 
 	$self
@@ -61,10 +63,11 @@ sub run {
 		my $module = "Mundi::Oculos::Selenium::Site::$_";
 		load $module;
 
-		my $module_instance = $module->new;
+		my $module_instance = $module->new();
+		$module_instance->set_query($self->{query});
 		$module_instance->get;
 
-		push @news, $module_instance->load_news;
+		push @news, $module_instance->record_news;
 	}
 
 	@news

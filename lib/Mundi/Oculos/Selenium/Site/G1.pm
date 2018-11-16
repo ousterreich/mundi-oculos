@@ -1,8 +1,6 @@
 package Mundi::Oculos::Selenium::Site::G1;
 
-use base 'Mundi::Oculos::Selenium';
-
-use Mundi::Oculos::Selenium::News::G1;
+use base 'Mundi::Oculos::Selenium::Site';
 
 my $NEWS_CSS = "
     div.bastian-feed-item[data-type='basico'] .feed-post-link,
@@ -14,48 +12,32 @@ my $LOAD_MORE_BUTTON_CSS = '.load-more';
 sub new {
 
     my $class = shift;
-    my $url = shift;
+    my $url = shift || 'https://g1.globo.com';
+    my $news_module = 'Mundi::Oculos::Selenium::News::G1';
 
-    my $self = $class->SUPER::new($url || 'https://g1.globo.com');
+    my $self = $class->SUPER::new($url, $news_module);
     bless $self, $class
 }
 
-sub load_news {
+sub record_news {
 
   my $self = shift;
 
-  my @news_html;
-  my $old_size = 0;
-
-  while ($old_size < 3) {
+  while ($self->need_news) {
 
     my @elements = $self->find_elements($NEWS_CSS, 'css');
-    my $new_size = scalar @elements;
-
-    push @news_html, map {
-      $_->get_attribute('href')
-    } splice @elements, $old_size, $new_size - $old_size;
-
-    $old_size = $new_size;
+    $self->update_news(@elements);
 
     my $load_button = $self->find_element_by_css($LOAD_MORE_BUTTON_CSS);
-    last unless $old_size < 3 && defined $load_button;
+    last unless $self->need_news && defined $load_button;
 
     $load_button->click;
     sleep 3;
   }
 
-  my @news;
+  $self->close;
+  $self->scrap_news;
 
-  foreach my $news_link (splice @news_html, 0, 3) {
-
-    my $news_pag = Mundi::Oculos::Selenium::News::G1->new($news_link);
-
-    my $res = $news_pag->get;
-    push @news, $news_pag->serialize if $res;
-    $news_pag->close;
-  }
-
-  @news
+  $self
 }
 1;

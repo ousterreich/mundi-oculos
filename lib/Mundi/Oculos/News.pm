@@ -1,9 +1,12 @@
 package Mundi::Oculos::News;
 
+use base 'Mundi::Oculos::DB';
+
 sub new {
 
   my $class = shift;
   my %args = @_;
+  my $self = $class->SUPER::new;
 
   $self->{link} = $args{'-link'};
   $self->{text} = $args{'-text'};
@@ -21,7 +24,7 @@ sub link {
   $self->{link} = shift
   if scalar @_;
 
-  return $self->{link};
+  return $self->{link}
 }
 
 sub title {
@@ -31,7 +34,7 @@ sub title {
   $self->{title} = shift
   if scalar @_;
 
-  return $self->{title};
+  return $self->{title}
 }
 
 sub subtitle {
@@ -41,7 +44,7 @@ sub subtitle {
   $self->{subtitle} = shift
   if scalar @_;
 
-  return $self->{subtitle};
+  return $self->{subtitle}
 }
 
 sub time {
@@ -51,7 +54,7 @@ sub time {
   $self->{time} = shift
   if scalar @_;
 
-  return $self->{time};
+  return $self->{time}
 }
 
 sub text {
@@ -61,6 +64,6 @@ sub text {
   $self->{text} = shift
   if scalar @_;
 
-  return $self->{text};
+  return $self->{text}
 }
 1;

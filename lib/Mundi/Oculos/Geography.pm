@@ -30,7 +30,7 @@ sub get_news_sites {
 
       while (<$news_fp>) {
 
-        if (scalar split '', $_) {
+        if (scalar split '' ) {
 
           $_ =~ s/\n//g;
 
@@ -49,7 +49,7 @@ sub get_news_sites {
   if (-e $dir && -d $dir && -x $dir) {
 
     my @news_dirs = grep {
-      -d "$dir/$_" && $query->regions->match("$dir/$_")
+      -d "$dir/$_" && $query->get_regions_conf->match("$dir/$_")
     } @dir_archives;
 
     foreach my $news_dir (@news_dirs) {

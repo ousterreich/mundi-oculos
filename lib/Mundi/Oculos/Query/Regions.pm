@@ -5,14 +5,14 @@ sub new {
   my $class = shift;
   my $regions = shift || {'*' => '*'};
 
-  my $self = {regions => $regions};
+  my $self = {allowed_regions => $regions};
   bless $self, $class
 }
 
-sub get_regions {
+sub get_allowed_regions {
 
   my $self = shift;
-  %{$self->{regions}}
+  %{$self->{allowed_regions}}
 }
 
 sub match {
@@ -34,7 +34,7 @@ sub _match_path {
 
   my %regions = defined $remaining_regions
   ? %{$remaining_regions}
-  : $self->get_regions;
+  : $self->get_allowed_regions;
 
   return 1 if scalar grep { $_ eq '*' } keys %regions;
 
